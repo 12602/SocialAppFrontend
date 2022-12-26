@@ -1,0 +1,13 @@
+.app{
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+.app {
+    overflow-y: hidden; /* Hide vertical scrollbar */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+  }
+
+  .app::-webkit-scrollbar {
+    display: none;
+  }
+  
