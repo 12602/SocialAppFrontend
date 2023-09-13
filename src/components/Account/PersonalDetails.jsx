@@ -2,109 +2,73 @@ import React, { useEffect, useState } from 'react'
 import { Avatar, Button, Dialog, Typography } from "@mui/material";
 
 import { Link, useNavigate } from "react-router-dom";
-import Posts from "../Posts/Posts";
-import User from "../User/User";
+
 import "./Account.css";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../../actions/UserAction";
+import User from "../User/User";
 
+const PersonalDetails = ({ user }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-const PersonalDetails = () => {
-    const [user, setUser] = useState([]);
-    const navigate=useNavigate()
-    const token=localStorage.getItem('auth-token')
-    const [loading,setLoading]=useState(false);
-  const [followersToggle, setFollowersToggle] = useState(false)
-  const [followingToggle, setFollowingToggle] = useState(false)
-    useEffect(()=>{
+  const [followersToggle, setFollowersToggle] = useState(false);
+  const [followingToggle, setFollowingToggle] = useState(false);
 
-    const getUser=async()=>{
-        try {
-          const resp=await fetch('http://localhost:4000/api/user/profile',{
-            method:"GET",
-            headers:{
-              "Content-Type":"Application/Json",
-              "auth-token":token
-            },
-            
-          });
-        
-          const data=await resp.json();
-          setLoading(true)   
-          setUser(data.user);
-          
-        } catch (error) {
-          console.log(error)
-          
-        }
-    }
-    
-      getUser();
-      
+  //delete profile
+  const deleteProfileHandler = () => {};
+  //logout
+  const logoutHandler = () => {
+    dispatch(logoutUser());
+    navigate("/login");
+  };
 
-
-     },[]);
-
-
-     //delete profile
-     const deleteProfileHandler=()=>{
-
-     }
-//logout 
-     const logoutHandler=()=>{
-      localStorage.clear();
-      navigate("/login")
-
-
-     }
-
-     console.log(user);
   return (
     <div>
-     <div className='accountright'> 
-       {
-        loading && user &&
-        <>
-        <Avatar sx={{ bgColor:'orange'}}>N</Avatar>
+      <div className="accountright">
+        {user && (
+          <>
+            <Avatar sx={{ bgColor: "orange" }}>N</Avatar>
 
-        <Typography variant="h5">{user.name}</Typography>
+            <Typography variant="h5">{user.name}</Typography>
 
-        <div>
-          <button onClick={() => setFollowersToggle(!followersToggle)}>
-            <Typography>Followers</Typography>
-          </button>
-          <Typography>{user.followers.length}</Typography>
-        </div>
+            <div>
+              <button onClick={() => setFollowersToggle(!followersToggle)}>
+                <Typography>Followers</Typography>
+              </button>
+              <Typography>{user.followers.length}</Typography>
+            </div>
 
-        <div>
-          <button onClick={() => setFollowingToggle(!followingToggle)}>
-            <Typography>Following</Typography>
-          </button>
-          <Typography>{user.following.length}</Typography>
-        </div>
+            <div>
+              <button onClick={() => setFollowingToggle(!followingToggle)}>
+                <Typography>Following</Typography>
+              </button>
+              <Typography>{user.following.length}</Typography>
+            </div>
 
-        <div>
-          <Typography>Posts</Typography>
-          <Typography>{user.posts.length}</Typography>
-        </div>
+            <div>
+              <Typography>Posts</Typography>
+              <Typography>{user.posts.length}</Typography>
+            </div>
 
-        <Button variant="contained" onClick={logoutHandler}>
-          Logout
-        </Button>
+            <Button variant="contained" onClick={logoutHandler}>
+              Logout
+            </Button>
 
-        {/* <Link to="/update/profile">Edit Profile</Link>
+            {/* <Link to="/update/profile">Edit Profile</Link>
         <Link to="/update/password">Change Password</Link> */}
 
-        <Button
-          variant="text"
-          style={{ color: "red", margin: "2vmax" }}
-          onClick={deleteProfileHandler}
-          
-        >
-          Delete My Profile
-        </Button>
-        </>
-      }
+            <Button
+              variant="text"
+              style={{ color: "red", margin: "2vmax" }}
+              onClick={deleteProfileHandler}
+            >
+              Delete My Profile
+            </Button>
+          </>
+        )}
 
-{/* <Dialog
+        <Dialog
           open={followersToggle}
           onClose={() => setFollowersToggle(!followersToggle)}
         >
@@ -126,9 +90,9 @@ const PersonalDetails = () => {
               </Typography>
             )}
           </div>
-        </Dialog> */}
+        </Dialog>
 
-        {/* <Dialog
+        <Dialog
           open={followingToggle}
           onClose={() => setFollowingToggle(!followingToggle)}
         >
@@ -150,11 +114,10 @@ const PersonalDetails = () => {
               </Typography>
             )}
           </div>
-        </Dialog> */}
-        </div>
-      
+        </Dialog>
+      </div>
     </div>
-  )
-}
+  );
+};
 
 export default PersonalDetails

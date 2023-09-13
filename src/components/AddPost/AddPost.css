@@ -109,8 +109,9 @@ textarea{
 }
 
 #output{
-    width: 300px;
+    width: 500px;
     border: none;
     outline: none;
     margin-top: 5px;
+    height:150px;
 }

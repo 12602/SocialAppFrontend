@@ -1,37 +1,20 @@
 import { Avatar, Button, Dialog, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { getMyPosts } from "../../actions/PostAction";
 import Posts from "../Posts/Posts";
 import User from "../User/User";
 import "./Account.css";
 import PersonalDetails from "./PersonalDetails";
 const Account = () => {
-  const [posts, setPosts] = useState([]);
-
-  const token = localStorage.getItem("auth-token");
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { posts } = useSelector((state) => state.myPosts);
+  const { user } = useSelector((state) => state.user);
   useEffect(() => {
-    const getPosts = async () => {
-      try {
-        const resp = await fetch("http://localhost:4000/api/myPosts", {
-          method: "GET",
-          headers: {
-            "Content-Type": "Application/Json",
-            "auth-token": token,
-          },
-        });
-
-        const data = await resp.json();
-
-        setPosts(data.posts);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    getPosts();
-  }, []);
+    dispatch(getMyPosts());
+  }, [dispatch]);
 
   console.log("Post", posts);
 
@@ -57,7 +40,7 @@ const Account = () => {
         )}
       </div>
       <div className="accountRight">
-        <PersonalDetails/>
+        <PersonalDetails user={user} />
       </div>
     </div>
   );

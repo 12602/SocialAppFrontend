@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:4000",
+  "proxy": "http://localhost:4000/api",
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
@@ -20,7 +20,8 @@
     "react-remove-scroll-bar": "^2.3.4",
     "react-router-dom": "^6.4.3",
     "react-scripts": "5.0.1",
-    "react-toastify": "^9.1.1",
+    "react-toastify": "^9.1.3",
+    "timeago": "^1.6.7",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

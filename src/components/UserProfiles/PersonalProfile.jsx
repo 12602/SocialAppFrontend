@@ -5,130 +5,80 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Posts from "../Posts/Posts";
 import User from "../User/User";
 import "./Profile.css";
+import { useDispatch } from "react-redux";
+import { followAndUnfollowUser } from "../../actions/UserAction";
 
+const PersonalProfile = ({ user }) => {
+  const { id } = useParams();
+  const dispatch = useDispatch();
 
-const PersonalProfile = () => {
-    const [user, setUser] = useState([]);
-    const {id}=useParams();
-    
-    const navigate=useNavigate()
-    const token=localStorage.getItem('auth-token')
-    const [loading,setLoading]=useState(false);
-  const [followersToggle, setFollowersToggle] = useState(false)
+  const navigate = useNavigate();
+  const token = localStorage.getItem("auth-token");
+  const [loading, setLoading] = useState(false);
+  const [followersToggle, setFollowersToggle] = useState(false);
   const [followingToggle, setFollowingToggle] = useState(false);
-  const [follow,setFollow]=useState(false)
- 
-    useEffect(()=>{
-    
-
-    const getUser=async()=>{
-        try {
-          const resp=await fetch(`http://localhost:4000/api/user/getUser/${id}`,{
-            method:"GET",
-            headers:{
-              "Content-Type":"Application/Json",
-              "auth-token":token
-            },
-            
-          });
-        
-          const data=await resp.json();
-          setLoading(true)   
-          setUser(data.user);
-          
-        } catch (error) {
-          console.log(error)
-          
-        }
+  const [follow, setFollow] = useState(false);
+  useEffect(() => {
+    if (user) {
+      user.user.followers.forEach((item) => {
+        if (item._id === id) {
+          console.log("user");
+          setFollow(true);
+        } else setFollow(false);
+      });
     }
-    
-      getUser();
-      
+  }, [user, id, follow]);
+  const followHandler = async (id) => {
+    setFollow(!follow);
+    dispatch(followAndUnfollowUser(id));
+  };
 
-
-     },[]);
-
-
-     const followHandler=async(id)=>{
-      
-      try {
-        const resp = await fetch(`http://localhost:4000/api/user/follow/${id}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "Application/Json",
-            "auth-token": token,
-          },
-        });
-  
-        const data = await resp.json();
-    
-     console.log(data.message);
-     if(data.message==='User Unfollowed')
-     {
-
-      setFollow(false);
-     }
-     else
-     {
-      setFollow(true);
-     }
-      
-      } catch (error) {
-
-        console.log(error);
-      }
-    }   
-     
-
-     
   return (
     <div>
-     <div className='accountright'> 
-       {
-        loading && user &&
-        <>
-        <Avatar sx={{ bgColor:'orange'}}>N</Avatar>
+      <div className="accountright">
+        {user && (
+          <>
+            <Avatar sx={{ bgColor: "orange" }}>N</Avatar>
 
-        <Typography variant="h5">{user.name}</Typography>
+            <Typography variant="h5">{user.user.name}</Typography>
 
-        <div>
-          <button onClick={() => setFollowersToggle(!followersToggle)}>
-            <Typography>Followers</Typography>
-          </button>
-          <Typography>{user.followers.length}</Typography>
-        </div>
+            <div>
+              <button onClick={() => setFollowersToggle(!followersToggle)}>
+                <Typography>Followers</Typography>
+              </button>
+              <Typography>{user.user.followers.length}</Typography>
+            </div>
 
-        <div>
-          <button onClick={() => setFollowingToggle(!followingToggle)}>
-            <Typography>Following</Typography>
-          </button>
-          <Typography>{user.following.length}</Typography>
-        </div>
+            <div>
+              <button onClick={() => setFollowingToggle(!followingToggle)}>
+                <Typography>Following</Typography>
+              </button>
+              <Typography>{user.user.following.length}</Typography>
+            </div>
 
-        <div>
-          <Typography>Posts</Typography>
-          <Typography>{user.posts.length}</Typography>
-        </div>
+            <div>
+              <Typography>Posts</Typography>
+              <Typography>{user.user.posts.length}</Typography>
+            </div>
 
-        <Button variant="contained" onClick={()=> followHandler(user._id)}>
-          {
-            follow ? 'Follow':'Unfollow'
-          }
-        </Button>
+            <Button
+              variant="contained"
+              onClick={() => followHandler(user.user._id)}
+            >
+              {follow ? "UnFollow" : "Follow"}
+            </Button>
+          </>
+        )}
 
-        
-       </>
-      }
-
-{/* <Dialog
+        <Dialog
           open={followersToggle}
           onClose={() => setFollowersToggle(!followersToggle)}
         >
           <div className="DialogBox">
             <Typography variant="h4">Followers</Typography>
 
-            {user && user.followers.length > 0 ? (
-              user.followers.map((follower) => (
+            {user && user.user.followers.length > 0 ? (
+              user.user.followers.map((follower) => (
                 <User
                   key={follower._id}
                   userId={follower._id}
@@ -142,17 +92,17 @@ const PersonalProfile = () => {
               </Typography>
             )}
           </div>
-        </Dialog> */}
+        </Dialog>
 
-        {/* <Dialog
+        <Dialog
           open={followingToggle}
           onClose={() => setFollowingToggle(!followingToggle)}
         >
           <div className="DialogBox">
             <Typography variant="h4">Following</Typography>
 
-            {user && user.following.length > 0 ? (
-              user.following.map((follow) => (
+            {user && user.user.following.length > 0 ? (
+              user.user.following.map((follow) => (
                 <User
                   key={follow._id}
                   userId={follow._id}
@@ -166,11 +116,10 @@ const PersonalProfile = () => {
               </Typography>
             )}
           </div>
-        </Dialog> */}
-        </div>
-      
+        </Dialog>
+      </div>
     </div>
-  )
-}
+  );
+};
 
 export default PersonalProfile

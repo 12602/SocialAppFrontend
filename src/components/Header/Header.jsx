@@ -12,7 +12,7 @@ import { fontSize } from '@mui/system'
     isToken=true;
 
   }
- console.log(token)
+
   return (
 
     <>
@@ -39,14 +39,14 @@ import { fontSize } from '@mui/system'
    
 
    </Link>
-   <Link to='/search' onClick={()=>setTab("/search")}>
+   {/* <Link to='/search' onClick={()=>setTab("/search")}>
    
  
    {
     tab==='/search'?<Search style={{color:'black'}}/>:<SearchOutlined/>
    }
    
-   </Link>
+   </Link> */}
    <Link to='/account' onClick={()=>setTab("/account")}>
   
    {

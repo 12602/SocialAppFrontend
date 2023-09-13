@@ -7,193 +7,144 @@ import User from '../User/User'
 import { toast } from 'react-toastify';
 import CommentCard from "../Comments/CommentCard";
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addCommentOnPost,
+  getMyPosts,
+  likePost,
+} from "../../actions/PostAction";
 const Posts = ({
   postId,
   caption,
   postImage,
-  likes ,
+  likes,
   comments,
   ownerImage,
   ownerName,
   ownerId,
   isDelete = false,
   isAccount = false,
-}) =>
-{
- 
-    const [like, setLike] = useState(false);
-    const [postDelete, setPostDelete] = useState(false);
-    const [likesUser, setLikesUser] = useState(false);
-    const [commentToggle,setCommentToggle]=useState(false);
-    const [commentValue, setCommentValue] = useState('');
-  
-  const token=localStorage.getItem('auth-token');
-  
-  useEffect(() => {
-   
-  }, [postDelete]);
+}) => {
+  const { user } = useSelector((state) => state.user);
+  let id;
+  //gett
+  if (user) id = user._id;
+  const [like, setLike] = useState(false);
+  const [postDelete, setPostDelete] = useState(false);
+  const [likesUser, setLikesUser] = useState(false);
+  const [commentToggle, setCommentToggle] = useState(false);
+  const [commentValue, setCommentValue] = useState("");
+  const dispatch = useDispatch();
+
   const notify = (msg) => toast(msg);
-    const likeHandler=async(id)=>{
-      console.log(id);
-  
-      const resp=await fetch(`http://localhost:4000/api/posts/${id}`,{
-        method:"GET",
-        headers:{
-          "Content-Type":"Application/Json",
-          "auth-token":token
-        },
-        
-      });
-    
-      const data=await resp.json();
-      if(resp.status!==200){
-        return ;
+  const likeHandler = async (id) => {
+    setLike(!like);
+    dispatch(likePost(id));
+  };
 
-      }     
-     if(data.message==='Post is liked'){
-      console.log('post is liked')
-    setLike(true);
-     }
-     else
-     {
-   console.log('Post is unliked')
-      setLike(false);
-     }
-    
+  const addCommentHandler = async (e) => {
+    e.preventDefault();
+    if (!commentValue) {
+      return notify("Comment Can't be empty!!!!");
     }
+    dispatch(addCommentOnPost(postId, commentValue));
+    setCommentToggle(false);
+  };
 
-    const addCommentHandler=async(e)=>{
-      try {
-        e.preventDefault();
-        
-      
-        const resp=await fetch(`http://localhost:4000/api/posts/comment/${postId}`,{
-          method:"PUT",
-          headers:{
-            "Content-Type":"Application/Json",
-            "auth-token":token
-          },
-          body:JSON.stringify({"comment":commentValue})
-        });
-      
-      
-       const data=await resp.json();
-       console.log(data)
-        if(resp.status!==200){
-        notify("Comment Fail !!!")
-        }
-        else{
-         notify("comment sucesfully!!")
-        }
-        
-      } catch (error) 
-      {
-        notify("Internal Server Error!!!!")
-        console.log("error in commenting"+error)
+  //delete post
+  const deletePost = async (commentId) => {
+    dispatch(postId, commentId);
+  };
+  useEffect(() => {
+    likes.map((item) => {
+      if (item._id === id) {
+        setLike(true);
+      } else {
+        setLike(false);
       }
-    
-}
+    });
+  }, [like, id, likes]);
+  useEffect(() => {
+     dispatch(getMyPosts());
 
-//delete post
-const deletePost=async()=>{
-  
-  const resp=await fetch(`http://localhost:4000/api/posts/${postId}`,{
-    method:"DELETE",
-    headers:{
-      "Content-Type":"Application/Json",
-      "auth-token":token
-    },
-    
-  });
-  const data=await resp.json();
-  window. location. reload()
-  
-}
-  
+  }, [dispatch]);
   return (
     <div>
-        <div className="post">
-         
-      <div className="postHeader">
+      <div className="post">
+        <div className="postHeader"></div>
+        <img src={postImage} alt="post" />
+        <div className="postDetails">
+          <Avatar
+            src={ownerImage}
+            alt="user"
+            sx={{ height: "3vmax", width: "3vmax" }}
+          />
 
-       
-      </div>
-      <img src={postImage} alt="post" />
-      <div className="postDetails">
-        <Avatar
-          src={ownerImage}
-          alt="user"
-          sx={{ height: "3vmax", width: "3vmax" }}
-        />
+          <Link to={`/user/${ownerId}`}>
+            <Typography
+              variant="h5"
+              style={{ color: "red", position: "relative", top: "-10px" }}
+            >
+              {ownerName}
+            </Typography>
+          </Link>
+          <Typography
+            fontWeight={100}
+            color="rgba(0,0,0,0.580)"
+            style={{
+              alignSelf: "center",
+              position: "relative",
+              color: "black",
+              top: "15px",
+            }}
+          >
+            {caption}
+          </Typography>
+        </div>
 
-        <Link to={`/user/${ownerId}`}>
-          <Typography variant="h5" style={{color:"grey",position:'relative', top:'-10px'}}>{ownerName}</Typography>
-        </Link>
-        <Typography
-          fontWeight={100}
-          color="rgba(0,0,0,0.580)"
-          style={{ alignSelf: "center",position:'relative',color:'black', top:'15px' }}
-        >
-          {caption}
-        </Typography>
-      </div>
-     
         <button
-        onClick={()=>setLikesUser(!likesUser)}
-        style={{border:"none",
-      backgroundColor:"white",
-      cursor:"pointer",
-      "margin":"1vmax 2vmax"
-      }}
+          onClick={() => setLikesUser(!likesUser)}
+          style={{
+            border: "none",
+            backgroundColor: "white",
+            cursor: "pointer",
+            margin: "1vmax 2vmax",
+          }}
         >
-        <Typography>
-        {likes.length} likes
-        </Typography>
-       </button> 
+          <Typography>{likes.length} likes</Typography>
+        </button>
 
-       <div className="postFooter">
-        
-        <Button onClick={()=>likeHandler(postId)}>
-         
-         {
-          like ? <Favorite/>:  <FavoriteBorder/>
-         }
-        </Button>
-        {/* {handling comments} */}
-        <Button onClick={()=>setCommentToggle(!commentToggle)}>
-          <ChatBubbleOutline/>
-        </Button>
-        {/* {handling delete} */}
+        <div className="postFooter">
+          <Button onClick={() => likeHandler(postId)}>
+            {like ? <Favorite /> : <FavoriteBorder />}
+          </Button>
+          {/* {handling comments} */}
+          <Button onClick={() => setCommentToggle(!commentToggle)}>
+            <ChatBubbleOutline />
+          </Button>
+          {/* {handling delete} */}
 
-        <Button onClick={deletePost}>
-         
-        <DeleteOutline/>
-       </Button>
-        
-       </div>    
-       
-       </div>
-       <Dialog open={likesUser} onClose={()=>setLikesUser(!likesUser)}>
-        <div className='DialogBox'>
-         <Typography variant="h4">
+          <Button onClick={deletePost}>
+            <DeleteOutline />
+          </Button>
+        </div>
+      </div>
+      <Dialog open={likesUser} onClose={() => setLikesUser(!likesUser)}>
+        <div className="DialogBox">
+          <Typography variant="h4">
             Liked By
-            {
-              likes.map((like)=>((
-                <User
+            {likes.map((like) => (
+              <User
                 key={like._id}
                 userId={like._id}
                 name={like.name}
-                avatar={like.avatar.url}
-               />
-              )))
-            }
-              </Typography>
-           
-         
-
+             //   avatar={like.avatar.url}
+              />
+            ))}
+          </Typography>
         </div>
-       </Dialog>
-       <Dialog
+      </Dialog>
+      <Dialog
         open={commentToggle}
         onClose={() => setCommentToggle(!commentToggle)}
       >
@@ -217,12 +168,12 @@ const deletePost=async()=>{
           {comments.length > 0 ? (
             comments.map((item) => (
               <CommentCard
-                userId={item.user._id}
-                name={item.user.name}
-                avatar={item.user.avatar.url}
-                comment={item.comment}
-                commentId={item._id}
-                key={item._id}
+                userId={item?.user?._id}
+                name={item?.user?.name}
+                avatar={item?.user?.avatar?.url}
+                comment={item?.comment}
+                commentId={item?._id}
+                key={item?._id}
                 postId={postId}
                 isAccount={isAccount}
               />
@@ -232,7 +183,6 @@ const deletePost=async()=>{
           )}
         </div>
       </Dialog>
-
     </div>
   );
 };

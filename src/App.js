@@ -12,25 +12,24 @@ import AddPost from './components/AddPost/AddPost';
 import Register from './components/Register/Register';
 import Profile from './components/UserProfiles/Profile';
 import './App.css'
-import {RemoveScrollBar} from 'react-remove-scroll-bar';
-import {zeroRightClassName,fullWidthClassName, noScrollbarsClassName} from 'react-remove-scroll-bar';
+import { useDispatch, useSelector } from 'react-redux';
+import { LoadUser } from './actions/UserAction';
+
 
 function App() {
- 
-    
+
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector(state => state.user)
+  useEffect(() => {
+    dispatch(LoadUser())
+  }, [])
     
   return (
 
     <div className='app'>
+      <Router>
+        {isAuthenticated && <Header />}
 
-    
-
-
-
-
-
-        <Router>
-      <Header/>
       <Routes>
           
         <Route exact path="/login" element={<Login/>}/>
@@ -43,28 +42,9 @@ function App() {
         <Route exact path="/" element={<Home/>}/>
        </Routes>
      </Router>
-     <ToastContainer/>
-      {/* <Router>
-        <Header/>
-       <Routes> */}
-       {/* <Route exact  path="/" element={<Home/>}/>
-       </Routes>
-       <Routes>
-     <Route path="/login" element={<Login/>}/>
-     </Routes>
-  <Route path="/register" element={<Register/>}/>
+      <ToastContainer />
 
-  <Route  path="/home" element={<Home/>}/>
-  <Route path="/account" element={<Account/>}/>
-  <Route path="/addPost" element={<AddPost/>}/>
-  <Route path="/user/:id" element={<Profile/>}/>
-
-<ToastContainer /> */}
-
-
-  
-
-  </div>
+    </div>
   );
 
 }

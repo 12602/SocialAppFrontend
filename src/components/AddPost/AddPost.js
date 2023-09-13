@@ -3,11 +3,13 @@ import React, { useEffect, useState } from 'react'
 import './AddPost.css'
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-
+import { useDispatch } from 'react-redux'
+import { createPost } from '../../actions/PostAction';
 const AddPost = () => {
 
   const navigate=useNavigate()
     const notify = (msg) => toast(msg);
+  const dispatch = useDispatch();
     const [image, setImage] = useState('')
     const [caption,setCaption]=useState('')
     const [url,setUrl]=useState(false);
@@ -16,40 +18,18 @@ const AddPost = () => {
   useEffect(() => {
     if (url) {
 
-     const resp= fetch("http://localhost:4000/api/post/upload", {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("auth-token")
-        },
-        body: JSON.stringify({
-          caption,
-        url: url
-        })
-      }).then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            notify(data.error)
-          } else {
-            notify("Successfully Posted")
-            navigate("/account")
-          }
-        })
-        .catch(err => console.log(err))
-    
-      }
-   
-      
-  
-  }, [url])
-  
-    
-    //posting image to cloudinary
-    const token=localStorage.getItem('auth-token');
-  
+      console.log("posting...")
+      dispatch(createPost(caption, url))
+      console.log("post added")
+      navigate("/account");
+
+    }
+  }, [url, dispatch])
+
+
+
   const postSaveToCloud = async(e) => {
-     e.preventDefault()
-  console.log("clicked cloud")
+    e.preventDefault()
 
     if(!image || !caption){
       setLoading(false);
@@ -57,8 +37,9 @@ const AddPost = () => {
        return  notify("Please select image and write caption !!!!!!");
     
       }
-  
-     
+    console.log("posting...")
+
+
   const data = new FormData()
   data.append("file", image)
   data.append("upload_preset", "insta-clone")
@@ -69,13 +50,10 @@ const AddPost = () => {
   }).then(res => res.json())
     .then(data =>setUrl(data.url))
     .catch(err => console.log(err))
-
+    console.log("posting...")
     //saving post to mongodb
-  
-  
-    
-
-  }
+    notify("New Post Added Succesfully !!!!");
+  } 
 
 
 
